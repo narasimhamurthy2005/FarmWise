@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FarmWise - Farmer Advisory System</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI=" crossorigin=""/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+  <nav class="navbar">
+    <div class="navbar-container">
+      <div class="brand">
+        <i class="fas fa-seedling"></i>
+        <span>FarmWise</span>
+      </div>
+      <div class="hamburger">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+      <ul class="nav-menu">
+        <li class="nav-item"><a href="#home" class="nav-link active">Home</a></li>
+        <li class="nav-item"><a href="#scheduler" class="nav-link">Crop Scheduler</a></li>
+        <li class="nav-item"><a href="#weather-scheduler" class="nav-link">Weather-Aware Schedule</a></li>
+        <li class="nav-item"><a href="#market-trends" class="nav-link">Market Trends</a></li>
+        <li class="nav-item"><a href="#shop-locator" class="nav-link">Shop Locator</a></li>
+        <li class="nav-item"><a href="#disease-detector" class="nav-link">Disease Detector</a></li>
+        <li class="nav-item"><a href="#mixed-cropping" class="nav-link">Mixed Cropping</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main>
+    <div id="app">
+      <!-- Home View -->
+      <div id="home" class="view active">
+        <div class="hero">
+          <h1>Welcome to FarmWise</h1>
+          <p>Your intelligent companion for smarter farming decisions</p>
+        </div>
+        <div class="container">
+          <div class="feature-cards">
+            <div class="feature-card">
+              <div class="icon-container">
+                <i class="fas fa-calendar-alt"></i>
+              </div>
+              <h3>Crop Scheduler</h3>
+              <p>Plan your seeding, fertilizing, and pesticide schedules with precision</p>
+            </div>
+            <div class="feature-card">
+              <div class="icon-container">
+                <i class="fas fa-cloud-sun-rain"></i>
+              </div>
+              <h3>Weather Integration</h3>
+              <p>Automatically adjust your farming schedule based on weather forecasts</p>
+            </div>
+            <div class="feature-card">
+              <div class="icon-container">
+                <i class="fas fa-chart-line"></i>
+              </div>
+              <h3>Market Insights</h3>
+              <p>Track price trends and identify high-value crops in your region</p>
+            </div>
+            <div class="feature-card">
+              <div class="icon-container">
+                <i class="fas fa-store"></i>
+              </div>
+              <h3>Shop Locator</h3>
+              <p>Find nearby agriculture supply shops with distance-based sorting</p>
+            </div>
+            <div class="feature-card">
+              <div class="icon-container">
+                <i class="fas fa-leaf"></i>
+              </div>
+              <h3>Disease Detection</h3>
+              <p>Identify common plant diseases from leaf images</p>
+            </div>
+            <div class="feature-card">
+              <div class="icon-container">
+                <i class="fas fa-seedling"></i>
+              </div>
+              <h3>Companion Planting</h3>
+              <p>Discover optimal crop combinations for mixed cropping</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Crop Scheduler View -->
+      <div id="scheduler" class="view">
+        <div class="container">
+          <h2>Crop Treatment Scheduler</h2>
+          <p class="section-description">Plan your crop treatments based on the seeding date.</p>
+          <div class="scheduler-form">
+            <div class="form-group">
+              <label for="seeding-date">Date of Seeding:</label>
+              <input type="date" id="seeding-date" class="date-picker">
+              <button id="generate-schedule" class="btn btn-primary">Generate Schedule</button>
+            </div>
+          </div>
+          <div id="schedule-output" class="schedule-output">
+            <div class="schedule-empty">
+              <i class="fas fa-calendar-alt"></i>
+              <p>Select a seeding date to generate your treatment schedule</p>
+            </div>
+            <div class="schedule-table-container" style="display: none;">
+              <table id="schedule-table" class="data-table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Days Since Seeding</th>
+                    <th>Treatment</th>
+                  </tr>
+                </thead>
+                <tbody id="schedule-body">
+                  <!-- Schedule rows will be inserted here -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Weather-Aware Schedule View -->
+      <div id="weather-scheduler" class="view">
+        <div class="container">
+          <h2>Weather-Aware Treatment Schedule</h2>
+          <p class="section-description">Optimize your treatments based on local weather conditions.</p>
+          <div class="scheduler-form">
+            <div class="form-group">
+              <label for="weather-seeding-date">Date of Seeding:</label>
+              <input type="date" id="weather-seeding-date" class="date-picker">
+              <button id="generate-weather-schedule" class="btn btn-primary">Generate Schedule</button>
+            </div>
+            <div class="form-group">
+              <label for="location">Location:</label>
+              <input type="text" id="location" placeholder="Enter city name" value="New York">
+              <p class="form-hint">This will be used to fetch weather forecast data</p>
+            </div>
+          </div>
+          <div id="weather-schedule-output" class="schedule-output">
+            <div class="schedule-empty">
+              <i class="fas fa-cloud-sun-rain"></i>
+              <p>Select a seeding date and location to generate your weather-aware schedule</p>
+            </div>
+            <div class="weather-info" style="display: none;">
+              <div class="weather-status">
+                <i class="fas fa-info-circle"></i>
+                <p>Weather-adjusted schedule is shown below. Strikethrough dates indicate the original schedule that's been adjusted.</p>
+              </div>
+            </div>
+            <div class="schedule-table-container" style="display: none;">
+              <table id="weather-schedule-table" class="data-table">
+                <thead>
+                  <tr>
+                    <th>Original Date</th>
+                    <th>Adjusted Date</th>
+                    <th>Days Since Seeding</th>
+                    <th>Treatment</th>
+                    <th>Weather</th>
+                  </tr>
+                </thead>
+                <tbody id="weather-schedule-body">
+                  <!-- Weather-aware schedule rows will be inserted here -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Market Trends View -->
+      <div id="market-trends" class="view">
+        <div class="container">
+          <h2>Market Trends Analysis</h2>
+          <p class="section-description">Track crop prices and identify profitable opportunities.</p>
+          <div class="region-selection">
+            <div class="form-group">
+              <label for="region-selector">Select Region:</label>
+              <select id="region-selector" class="select-dropdown">
+                <option value="north">Northern Region</option>
+                <option value="central" selected>Central Region</option>
+                <option value="south">Southern Region</option>
+                <option value="east">Eastern Region</option>
+                <option value="west">Western Region</option>
+              </select>
+            </div>
+          </div>
+          <div class="market-data">
+            <div class="chart-container">
+              <canvas id="price-chart"></canvas>
+            </div>
+            <div class="top-crops">
+              <h3>Top Value Crops This Week</h3>
+              <div id="top-crops-list" class="crop-list">
+                <!-- Top crops will be inserted here -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Shop Locator View -->
+      <div id="shop-locator" class="view">
+        <div class="container">
+          <h2>Agricultural Supply Shop Locator</h2>
+          <p class="section-description">Find nearby shops for pesticides, fertilizers, and other farming supplies.</p>
+          <div class="locator-content">
+            <div class="map-container">
+              <div id="map"></div>
+            </div>
+            <div class="shops-list">
+              <h3>Nearby Shops</h3>
+              <p class="sorting-info">Sorted by distance from your location</p>
+              <div id="shops-list-container">
+                <!-- Shops will be inserted here -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Disease Detector View -->
+      <div id="disease-detector" class="view">
+        <div class="container">
+          <h2>Crop Disease Detector</h2>
+          <p class="section-description">Upload a leaf image to identify potential plant diseases.</p>
+          <div class="upload-container">
+            <div class="upload-area" id="upload-area">
+              <i class="fas fa-cloud-upload-alt"></i>
+              <p>Drag & drop a leaf image or click to browse</p>
+              <input type="file" id="image-upload" accept="image/*" hidden>
+              <button class="btn btn-outlined" id="browse-button">Browse Files</button>
+            </div>
+            <div class="image-preview-container" style="display: none;">
+              <div class="image-preview">
+                <img id="leaf-image-preview" src="#" alt="Leaf image preview">
+              </div>
+              <div class="preview-actions">
+                <button class="btn btn-primary" id="analyze-image">Analyze Image</button>
+                <button class="btn btn-secondary" id="change-image">Change Image</button>
+              </div>
+            </div>
+          </div>
+          <div id="disease-result" style="display: none;">
+            <!-- Disease detection result will be inserted here -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Mixed Cropping View -->
+      <div id="mixed-cropping" class="view">
+        <div class="container">
+          <h2>Companion Planting Advisor</h2>
+          <p class="section-description">Discover which crops grow well together for optimal yield and pest control.</p>
+          <div class="crops-selection">
+            <div class="form-group">
+              <label for="crops-selector">Select Two or More Crops:</label>
+              <select id="crops-selector" class="select-dropdown" multiple>
+                <option value="maize">Maize (Corn)</option>
+                <option value="beans">Beans</option>
+                <option value="tomato">Tomato</option>
+                <option value="potato">Potato</option>
+                <option value="onion">Onion</option>
+                <option value="garlic">Garlic</option>
+                <option value="carrot">Carrot</option>
+                <option value="lettuce">Lettuce</option>
+                <option value="cucumber">Cucumber</option>
+                <option value="squash">Squash</option>
+              </select>
+              <p class="form-hint">Hold Ctrl/Cmd key to select multiple options</p>
+              <button id="check-compatibility" class="btn btn-primary">Check Compatibility</button>
+            </div>
+          </div>
+          <div id="compatibility-result" style="display: none;">
+            <!-- Compatibility result will be inserted here -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-content">
+      <div class="footer-brand">
+        <i class="fas fa-seedling"></i> FarmWise
+      </div>
+      <div class="footer-text">
+        <p>A farmer advisory prototype application</p>
+        <p>&copy; 2025 FarmWise. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- External Libraries -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js" integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM=" crossorigin=""></script>
+  
+  <!-- Application Script -->
+  <script src="app.js"></script>
+</body>
+</html>
